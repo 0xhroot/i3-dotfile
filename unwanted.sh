@@ -26,3 +26,8 @@ done
 # Output a footer
 echo "-------------------------------"
 echo "End of Unwanted Software/Package List"
+
+1. pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
+2. pacman-key --lsign-key FBA220DFC880C036
+3. pacman -U 'https://cdn-mirror.chaotic.cx/chaotic... 'https://cdn-mirror.chaotic.cx/chaotic...
+
