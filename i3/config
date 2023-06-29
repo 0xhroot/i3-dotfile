@@ -1,27 +1,34 @@
+# System :- 
+
 set $mod Mod4
-font pango:monospace 15
-bindsym $mod+Return exec kitty
+font pango:monospace italic 15
 bindsym $mod+Shift+q kill
-# git clone https://github.com/catppuccin/rofi && cd rofi/deathemonic
-# cp -r * ~/.config/rofi
-bindsym $mod+d exec --no-startup-id rofi -show drun -theme Monokai -icon-theme "Tela-circle" -show-icons
-bindsym $mod+Shift+d exec --no-startup-id rofi -show run -theme Monokai
-# sudo pacman -S mpd libmpdclient
-# git clone https://github.com/axdevil/supertheme-polybar.git
-#cd supertheme-polybar && ./install.sh
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
-exec_always feh --bg-fill /usr/share/backgrounds/i3/wall.png
-gaps inner 10
-exec_always picom -f
+exec_always feh --bg-fill /usr/share/backgrounds/i3/3.jpg
+gaps inner 17
 bindsym $mod+x exec betterlockscreen -l
-exec --no-startup-id xss-lock --transfer-sleep-lock -- betterlockscreen -l
+bindsym $mod+Shift+p exec shutdown now
+bindsym $mod+shift+o exec systemctl reboot
 exec --no-startup-id nm-applet
-bindsym XF86AudioRaiseVolume exec amixer -q set Master 5%+ unmute
-bindsym XF86AudioLowerVolume exec amixer -q set Master 5%- unmute
-bindsym XF86AudioMute exec amixer -q set Master toggle
-bindsym XF86MonBrightnessUp exec sudo xbacklight -inc 10
-bindsym XF86MonBrightnessDown exec sudo xbacklight -dec 10
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 floating_modifier $mod
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+bindsym $mod+r mode "resize"
+for_window [class="firefox"] move to workspace $ws3
+bindsym $mod+b workspace 3; exec firefox
+
+# Software Shortcuts :-
+
+bindsym $mod+Return exec kitty
+bindsym $mod+shift+a exec thunar
+
+# Window focus :- 
+
+# Focus:-
 bindsym $mod+j focus left
 bindsym $mod+k focus down
 bindsym $mod+l focus up
@@ -30,6 +37,7 @@ bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
+# Move window :-
 bindsym $mod+Shift+j move left
 bindsym $mod+Shift+k move down
 bindsym $mod+Shift+l move up
@@ -38,15 +46,21 @@ bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
+# Spliting windows :-
 bindsym $mod+h split h
 bindsym $mod+v split v
 bindsym $mod+f fullscreen toggle
+# Change container:-
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
+# Floating window :-
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
+
+# Workspace :-
+
 set $ws1 "1"
 set $ws2 "2"
 set $ws3 "3"
@@ -57,6 +71,7 @@ set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
+# Switching :-
 bindsym $mod+1 workspace number $ws1
 bindsym $mod+2 workspace number $ws2
 bindsym $mod+3 workspace number $ws3
@@ -67,6 +82,7 @@ bindsym $mod+7 workspace number $ws7
 bindsym $mod+8 workspace number $ws8
 bindsym $mod+9 workspace number $ws9
 bindsym $mod+0 workspace number $ws10
+# move window in other workspace:-
 bindsym $mod+Shift+1 move container to workspace number $ws1
 bindsym $mod+Shift+2 move container to workspace number $ws2
 bindsym $mod+Shift+3 move container to workspace number $ws3
@@ -77,26 +93,23 @@ bindsym $mod+Shift+7 move container to workspace number $ws7
 bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+r restart
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
-mode "resize"
-{
-        bindsym j resize shrink width 10 px or 10 ppt
+# Theme :-
+bindsym $mod+d exec --no-startup-id rofi -show drun -theme Monokai -icon-theme "Tela-circle" -show-icons
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+exec_always picom -b
+
+# resize :-
+mode "resize" {
+	bindsym j resize shrink width 10 px or 10 ppt
         bindsym k resize grow height 10 px or 10 ppt
         bindsym l resize shrink height 10 px or 10 ppt
         bindsym semicolon resize grow width 10 px or 10 ppt
-
-        bindsym Left resize shrink width 10 px or 10 ppt
+	bindsym Left resize shrink width 10 px or 10 ppt
         bindsym Down resize grow height 10 px or 10 ppt
         bindsym Up resize shrink height 10 px or 10 ppt
         bindsym Right resize grow width 10 px or 10 ppt
-
-        bindsym Return mode "default"
+	bindsym Return mode "default"
         bindsym Escape mode "default"
         bindsym $mod+r mode "default"
 }
-bindsym $mod+r mode "resize"
-for_window [class="firefox"] move to workspace $ws5
-bindsym $mod+b workspace 5; exec firefox
