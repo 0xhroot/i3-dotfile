@@ -1,81 +1,162 @@
 #!/usr/bin/env bash
 
-dir="$HOME/.config/polybar"
-themes=(`ls --hide="launch.sh" $dir`)
+#####################################
+#                                   #
+#  @author      : 00xWolf           #
+#    GitHub    : @mmsaeed509       #
+#    Developer : Mahmoud Mohamed   #
+#  﫥  Copyright : Exodia OS         #
+#                                   #
+#####################################
 
-launch_bar() {
-	# Terminate already running bar instances
-	killall -q polybar
+# Files and Directories #
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+CONFIG_FILE="$HOME/.config/bspwm/exodia.conf"
+BAR=$(grep -Po 'polybar\s*=\s*\K.*' ${CONFIG_FILE})
+POLYBAR_DIR="$HOME/.config/bspwm/themes/${BAR}/polybar"
+SFILE="${POLYBAR_DIR}/system"
+MONITORS=$(grep -Po 'multi-bar-monitors\s*=\s*\K.*' ${CONFIG_FILE})
 
-	# Wait until the processes have been shut down
-	while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+# Get system variable values for various modules #
+GET_VALUES() {
 
-	# Launch the bar
-	if [[ "$style" == "hack" || "$style" == "cuts" ]]; then
-		polybar -q top -c "$dir/$style/config.ini" &
-		polybar -q bottom -c "$dir/$style/config.ini" &
-	elif [[ "$style" == "pwidgets" ]]; then
-		bash "$dir"/pwidgets/launch.sh --main
-	else
-		polybar -q main -c "$dir/$style/config.ini" &	
-	fi
+	CARD=$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)
+	BATTERY=$(upower -i `upower -e | grep 'BAT'` | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
+	ADAPTER=$(upower -i `upower -e | grep 'AC'` | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
+	INTERFACE=$(ip link | awk '/state UP/ {print $2}' | tr -d :)
+
 }
 
-if [[ "$1" == "--material" ]]; then
-	style="material"
-	launch_bar
+# Write values to `system` file #
+SET_VALUES() {
 
-elif [[ "$1" == "--shades" ]]; then
-	style="shades"
-	launch_bar
+	if [[ "$ADAPTER" ]];
+		
+		then
+			
+			sed -i -e "s/adapter = .*/adapter = $ADAPTER/g" "${SFILE}"
 
-elif [[ "$1" == "--hack" ]]; then
-	style="hack"
-	launch_bar
+	fi
 
-elif [[ "$1" == "--docky" ]]; then
-	style="docky"
-	launch_bar
+	if [[ "$BATTERY" ]];
+		
+		then
+			
+			sed -i -e "s/battery = .*/battery = $BATTERY/g" "${SFILE}"
 
-elif [[ "$1" == "--cuts" ]]; then
-	style="cuts"
-	launch_bar
+	fi
 
-elif [[ "$1" == "--shapes" ]]; then
-	style="shapes"
-	launch_bar
+	if [[ "$CARD" ]];
+		
+		then
+			
+			sed -i -e "s/graphics_card = .*/graphics_card = $CARD/g" "${SFILE}"
 
-elif [[ "$1" == "--grayblocks" ]]; then
-	style="grayblocks"
-	launch_bar
+	fi
 
-elif [[ "$1" == "--blocks" ]]; then
-	style="blocks"
-	launch_bar
+	if [[ "$INTERFACE" ]];
+		
+		then
+			
+			sed -i -e "s/network_interface = .*/network_interface = $INTERFACE/g" "${SFILE}"
 
-elif [[ "$1" == "--colorblocks" ]]; then
-	style="colorblocks"
-	launch_bar
+	fi
 
-elif [[ "$1" == "--forest" ]]; then
-	style="forest"
-	launch_bar
+}
 
-elif [[ "$1" == "--pwidgets" ]]; then
-	style="pwidgets"
-	launch_bar
+# Launch Polybar with the selected style ONLY in the primary display #
+LAUNCH_SINGLE_BAR() {
 
-elif [[ "$1" == "--panels" ]]; then
-	style="panels"
-	launch_bar
+	CARD=$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)
+	INTERFACE=$(ip link | awk '/state UP/ {print $2}' | tr -d :)
+
+	if [[ -z "$CARD" ]];
+		
+		then
+			
+			sed -i -e 's/backlight/bna/g' "$DIR"/config
+
+	elif [[ "$CARD" != *"intel_"* ]];
+		
+		then
+			
+			sed -i -e 's/backlight/brightness/g' "$DIR"/config
+
+	fi
+
+	# Close polybar #
+	killall -q polybar
+
+	# Wait until closing polybar #
+	while pgrep -u $UID -x polybar >/dev/null;
+		
+		do
+			
+			sleep 1
+
+	done
+
+	# Launch polybar #
+	polybar -q main -c   "$DIR"/config &
+
+}
+
+# Launch Polybar with the selected style in all displays #
+LAUNCH_MULTI_BAR() {
+
+	CARD=$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)
+	INTERFACE=$(ip link | awk '/state UP/ {print $2}' | tr -d :)
+
+	if [[ -z "$CARD" ]];
+		
+		then
+			
+			sed -i -e 's/backlight/bna/g' "$DIR"/config
+
+	elif [[ "$CARD" != *"intel_"* ]];
+		
+		then
+			
+			sed -i -e 's/backlight/brightness/g' "$DIR"/config
+
+	fi
+
+	# Close polybar #
+	killall -q polybar
+
+	# Wait until closing polybar #
+	while pgrep -u $UID -x polybar >/dev/null;
+		
+		do
+			
+			sleep 1
+
+	done
+
+	# Launch polybar #
+	for MON in $(polybar --list-monitors | cut -d":" -f1);
+		
+		do
+
+			MONITOR=$MON polybar -q main -c   "$DIR"/config &
+	
+	done
+
+}
+
+# Execute functions #
+GET_VALUES
+SET_VALUES
+
+# Launch polybar #
+if [[ $MONITORS == "true" ]];
+	
+	then
+		
+		LAUNCH_MULTI_BAR
 
 else
-	cat <<- EOF
-	Usage : launch.sh --theme
-		
-	Available Themes :
-	--blocks    --colorblocks    --cuts      --docky
-	--forest    --grayblocks     --hack      --material
-	--panels    --pwidgets       --shades    --shapes
-	EOF
+
+	LAUNCH_SINGLE_BAR
+
 fi
