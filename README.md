@@ -54,23 +54,6 @@ The whole setup is keyboard-driven. Mouse is optional. Everything runs fast.
 
 ---
 
-## 📸 Screenshots
-
-> Drop your screenshots in a `screenshots/` folder and uncomment below.
-
-```markdown
-<div align="center">
-  <img src="screenshots/desktop.png" width="48%" />
-  <img src="screenshots/terminal.png" width="48%" />
-</div>
-<div align="center">
-  <img src="screenshots/rofi.png" width="48%" />
-  <img src="screenshots/cava.png" width="48%" />
-</div>
-```
-
----
-
 ## 🧩 Components
 
 ### 🪟 i3wm — Window Manager
